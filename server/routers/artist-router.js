@@ -1,12 +1,12 @@
 const router = require('express').Router();
 
-const Artist = require('../models/Artist');
+const Artist = require('../models/User');
 
 const auth = require('../middleware/auth');
 
 //redirect get and post request 
 
-router.post('/artists/login', async (req, res) => {
+router.post('/login', async (req, res) => {
     try {
 
         const artist = await Artist.findByCredentials(req.body.name, req.body.password)
@@ -19,7 +19,7 @@ router.post('/artists/login', async (req, res) => {
     }
 });
 
-router.get('/artists/me', auth, async (req, res) => {
+router.get('/me', auth, async (req, res) => {
     res.send(req.artist);
 });
 
@@ -31,7 +31,7 @@ router.get('/', (req, res) => {
     })
 });
 
-router.post('/artists', async (req, res) => {
+router.post('/register', async (req, res) => {
 
     const artist = new Artist(req.body);
 
@@ -39,7 +39,12 @@ router.post('/artists', async (req, res) => {
         await artist.save();
         const token = await artist.generateAuthToken();
 
-        res.status(201).send({ artist, token });
+        res.status(201).send({
+            _id: artist._id,
+            name: artist.name,
+            email: artist.email,
+            token: token
+        });
     } catch (e) {
         console.log(e);
         res.status(400).send(e);

@@ -1,10 +1,15 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const artistSchema = mongoose.Schema({
+const userSchema = mongoose.Schema({
     name: {
         type: String,
         required: true,
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
     },
     password: {
         type: String,
@@ -24,9 +29,9 @@ const artistSchema = mongoose.Schema({
 
 });
 
-artistSchema.statics.findByCredentials = async (name, password) => {
+userSchema.statics.findByCredentials = async (name, password) => {
     console.log(name);
-    const user = await Artist.findOne({ name: name });
+    const user = await User.findOne({ name: name });
 
     if (!user) {
         throw new Error('Unable to find the artist');
@@ -42,7 +47,7 @@ artistSchema.statics.findByCredentials = async (name, password) => {
 
 }
 
-artistSchema.methods.generateAuthToken = async function () {
+userSchema.methods.generateAuthToken = async function () {
     const artist = this;
     const token = jwt.sign({ _id: artist._id.toString() }, process.env.JWT_SECRET);
 
@@ -53,7 +58,7 @@ artistSchema.methods.generateAuthToken = async function () {
 
 }
 
-artistSchema.pre('save', async function (next) {
+userSchema.pre('save', async function (next) {
     const user = this;
 
     if (user.isModified('password')) {
@@ -63,6 +68,6 @@ artistSchema.pre('save', async function (next) {
     next();
 })
 
-const Artist = mongoose.model('Artist', artistSchema);
+const User = mongoose.model('Artist', userSchema);
 
-module.exports = Artist;
+module.exports = User;
